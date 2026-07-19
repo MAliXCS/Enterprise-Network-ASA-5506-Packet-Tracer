@@ -28,20 +28,20 @@ This project demonstrates a segmented enterprise network architecture built in C
                     └──────────┬───────────┘
                                │
                     ┌──────────▼───────────┐
-                    │    ASA 5506-X         │
+                    │    ASA 5506-X        │
                     │  Outside: 192.168.1.2│
                     │  Inside: 192.168.2.1 │
                     │  DMZ: 192.168.20.1   │
                     └──────┬─────────┬─────┘
                            │         │
                     ┌──────▼───┐ ┌───▼──────────────┐
-                    │ Router   │ │   DMZ Switch      │
-                    │ 2811     │ │ 5 Server Network  │
+                    │ Router   │ │   DMZ Switch     │
+                    │ 2811     │ │ 5 Server Network │
                     └──────┬───┘ └──────────────────┘
                            │
                     ┌──────▼───────────┐
                     │ Internal Switch  │
-                    │ VLAN 10/20/30     │
+                    │ VLAN 10/20/30    │
                     └──────────────────┘
 ```
 
