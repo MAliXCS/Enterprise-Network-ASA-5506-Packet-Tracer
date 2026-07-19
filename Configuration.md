@@ -1,19 +1,52 @@
-# Enterprise Network Configuration
+[Uploading Enterprise_Configuration_Guide.md…]()
+# Cisco ASA 5506-X Enterprise Network Configuration Guide
 
-> This file contains only the device configurations for the project.
+> Comprehensive configuration reference with explanations, purposes, alternatives, and Packet Tracer considerations.
 
-## Internal Switch (Cisco 2950)
+# Table of Contents
+1. Introduction
+2. Network Overview
+3. Internal Switch Configuration
+4. DMZ Switch Configuration
+5. Router Configuration
+6. Cisco ASA Firewall Configuration
+7. Server Configuration
+8. Verification
+9. Packet Tracer Bugs
+10. Best Practices
+
+---
+
+# Introduction
+
+This project demonstrates a complete enterprise network built in Cisco Packet Tracer using VLANs, Router-on-a-Stick, DHCP, Cisco ASA 5506-X Firewall, NAT, DMZ, DNS, and multiple servers.
+
+---
+
+# Internal Switch Configuration
+
+## Purpose
+
+Separates departments into VLANs to improve security, reduce broadcast traffic, and simplify administration.
+
+## Why VLANs?
+
+- Better security
+- Smaller broadcast domains
+- Easier management
+- Scalable enterprise design
+
+## Alternative Approaches
+
+- Flat Layer-2 network
+- Private VLANs
+- Software Defined Networking (SDN)
+
+## Example Configuration
 
 ```cisco
-enable
-configure terminal
-
 vlan 10
  name ADMIN
-vlan 20
- name OFFICE
-vlan 30
- name LAB
 
 interface range fa0/1-5
  switchport mode access
@@ -21,110 +54,171 @@ interface range fa0/1-5
  switchport port-security
  switchport port-security maximum 1
  switchport port-security violation shutdown
- no shutdown
-
-interface range fa0/6-10
- switchport mode access
- switchport access vlan 20
- switchport port-security
- switchport port-security maximum 1
- switchport port-security violation shutdown
- no shutdown
-
-interface range fa0/11-15
- switchport mode access
- switchport access vlan 30
- switchport port-security
- switchport port-security maximum 1
- switchport port-security violation shutdown
- no shutdown
-
-interface fa0/24
- switchport mode trunk
- switchport trunk allowed vlan 10,20,30
- no shutdown
-
-interface range fa0/16-23
- shutdown
-
-end
-write memory
 ```
 
-## DMZ Switch
+### Command Explanation
+
+- **vlan 10** — Creates VLAN ID 10.
+- **name ADMIN** — Assigns a descriptive name.
+- **switchport mode access** — Makes the interface an access port.
+- **switchport access vlan 10** — Assigns the interface to VLAN 10.
+- **switchport port-security** — Restricts unauthorized devices.
+
+---
+
+# Router Configuration
+
+## Purpose
+
+Provides inter-VLAN routing and DHCP services.
+
+## Why Router-on-a-Stick?
+
+A single physical interface can route traffic for multiple VLANs using 802.1Q tagging.
+
+### Alternatives
+
+- Layer-3 Switch
+- Multiple physical router interfaces
+
+---
+
+# Cisco ASA Firewall
+
+## Purpose
+
+Protects the internal network using security zones, NAT, ACLs, and traffic inspection.
+
+### Security Levels
+
+| Zone | Level |
+|------|------:|
+| Inside | 100 |
+| DMZ | 50 |
+| Outside | 0 |
+
+### Why NAT?
+
+- Conserves public IP addresses
+- Hides internal addressing
+- Enables Internet connectivity
+
+### Alternatives
+
+- Static NAT
+- Policy NAT
+- Twice NAT
+
+---
+
+# Packet Tracer Bugs (Detailed)
+
+## 1. HTTP Timeout through ASA
+
+### Symptoms
+HTTP requests fail even when the configuration is correct.
+
+### Cause
+Packet Tracer has incomplete ASA HTTP simulation.
+
+### Workaround
+- Test using Simulation Mode.
+- Verify with ping.
+- Check NAT translations.
+- Accept as a simulator limitation.
+
+---
+
+## 2. Interface Up/Down
+
+### Cause
+
+- Cable disconnected
+- Device powered off
+- Interface shutdown
+
+### Fix
 
 ```cisco
-enable
-configure terminal
-vlan 20
- name DMZ
-
-interface range fa0/1-5
- switchport mode access
- switchport access vlan 20
- no shutdown
-
-interface fa0/24
- switchport mode access
- switchport access vlan 20
- no shutdown
-
-end
-write memory
-```
-
-## Router (Cisco 2811)
-
-```cisco
-enable
-configure terminal
-
-interface fa0/0.10
- encapsulation dot1Q 10
- ip address 10.0.10.1 255.255.255.0
-
-interface fa0/0.20
- encapsulation dot1Q 20
- ip address 10.0.20.1 255.255.255.0
-
-interface fa0/0.30
- encapsulation dot1Q 30
- ip address 10.0.30.1 255.255.255.0
-
-interface fa0/1
- ip address 192.168.2.254 255.255.255.0
- no shutdown
-
-ip route 0.0.0.0 0.0.0.0 192.168.2.1
-
-end
-write memory
-```
-
-## Cisco ASA 5506-X
-
-```cisco
-enable
-configure terminal
-
 interface g1/1
- nameif inside
- security-level 100
- ip address 192.168.2.1 255.255.255.0
-
-interface g1/2
- nameif outside
- security-level 0
- ip address 192.168.1.2 255.255.255.0
-
-interface g1/3
- nameif dmz
- security-level 50
- ip address 192.168.20.1 255.255.255.0
-
-object network INSIDE_NET
- subnet 10.0.0.0 255.0.0.0
- nat (inside,outside) dynamic interface
-
-write memory
+ no shutdown
 ```
+
+---
+
+## 3. DHCP Not Working
+
+### Symptoms
+
+Clients receive APIPA (169.254.x.x).
+
+### Causes
+
+- Missing DHCP pool
+- Incorrect VLAN
+- Router interface down
+
+### Verification
+
+```cisco
+show ip dhcp binding
+show ip interface brief
+```
+
+---
+
+## 4. DNS Resolution Failure
+
+### Causes
+
+- DNS service disabled
+- Wrong DNS address
+- Firewall blocking UDP/53
+
+### Verification
+
+```cisco
+ping google.com
+```
+
+---
+
+## 5. NAT Translations Missing
+
+### Causes
+
+- No generated traffic
+- Incorrect NAT object
+- ACL blocking packets
+
+Verification:
+
+```cisco
+show xlate
+show nat
+```
+
+---
+
+# Verification Commands
+
+```cisco
+show vlan brief
+show interfaces trunk
+show ip route
+show running-config
+show access-list
+show nat
+show xlate
+```
+
+---
+
+# Best Practices
+
+- Disable unused ports.
+- Use strong passwords.
+- Apply ACLs using least privilege.
+- Separate public servers into a DMZ.
+- Verify configurations before deployment.
+- Save configurations using `write memory`.
