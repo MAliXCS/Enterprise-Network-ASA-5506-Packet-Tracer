@@ -2,7 +2,7 @@
 
 > A complete Cisco Packet Tracer enterprise network lab featuring VLAN segmentation, router-on-a-stick inter-VLAN routing, DHCP, Cisco ASA 5506-X firewall security zones, NAT, DMZ servers, DNS, ICMP inspection, and end-to-end verification.
 
-![Network Architecture]
+![Network Architecture](images/network-diagram.png)
 
 ## Overview
 
