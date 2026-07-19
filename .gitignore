@@ -1,0 +1,19 @@
+# Cisco Packet Tracer
+*.bak
+*.tmp
+*.pkt~
+autosave/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.swp
+*.swo
